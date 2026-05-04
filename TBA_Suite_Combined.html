@@ -727,11 +727,23 @@ const S = {
 };
 
 // ════════════════════════════════════════════════════════
+// CONSTANTS — single source of truth for all magic numbers
+// ════════════════════════════════════════════════════════
+const K = {
+  LACS:          100000,  // rupees per lac — used in all lac conversion
+  QP_YEARS:      7,       // qualifying period lookback in years (NIT Cl. 11.2 Note 2)
+  DEBOUNCE_MS:   900,     // autosave / file-write debounce delay (ms)
+  TOAST_MS:      2200,    // toast visible duration before fade-out starts (ms)
+  TOAST_FADE_MS: 300,     // toast CSS opacity transition duration (ms)
+  PRINT_DELAY_MS:300,     // delay before window.print() to let render settle (ms)
+};
+
+// ════════════════════════════════════════════════════════
 // NAVIGATION
 // ════════════════════════════════════════════════════════
 function nav(id) {
   document.querySelectorAll('.sec').forEach(s => s.classList.remove('act'));
-  document.getElementById(id).classList.add('act');
+  const secEl=document.getElementById(id); if(secEl) secEl.classList.add('act');
   document.querySelectorAll('.sb-a').forEach(a => a.classList.remove('active'));
   document.querySelectorAll('.sb-a').forEach(a => { if((a.getAttribute('onclick')||'').includes(id)) a.classList.add('active'); });
   if(id==='sec-eval') renderEvalTabs();
@@ -747,11 +759,11 @@ function nav(id) {
 // ════════════════════════════════════════════════════════
 function toLac(v){
   if(!v||isNaN(v)||v===0) return '—';
-  return (v/100000).toFixed(2)+' L';
+  return (v/K.LACS).toFixed(2)+' L';
 }
 function toLacN(v){
   if(!v||isNaN(v)||v===0) return '—';
-  return '₹'+(v/100000).toFixed(2)+' L';
+  return '₹'+(v/K.LACS).toFixed(2)+' L';
 }
 function fmtDate(s){
   if(!s) return '—';
@@ -768,7 +780,7 @@ function calcQP(){
   document.getElementById('ext-alert').style.display=(ext&amp;&amp;ext!==orig)?'flex':'none';
   if(!orig){document.getElementById('qp-from').textContent='—';document.getElementById('qp-to').textContent='—';return;}
   const d=new Date(orig);
-  const from=new Date(d);from.setFullYear(from.getFullYear()-7);
+  const from=new Date(d);from.setFullYear(from.getFullYear()-K.QP_YEARS);
   document.getElementById('qp-from').textContent=fmtDate(from.toISOString().split('T')[0]);
   document.getElementById('qp-to').textContent=fmtDate(orig);
 }
@@ -1034,7 +1046,7 @@ function inQP(dateStr){
   if(!dateStr||!S.tender.torig) return true; // can't check — don't exclude
   const comp=new Date(dateStr);
   const orig=new Date(S.tender.torig);
-  const from=new Date(orig);from.setFullYear(from.getFullYear()-7);
+  const from=new Date(orig);from.setFullYear(from.getFullYear()-K.QP_YEARS);
   return comp>=from &amp;&amp; comp<=orig;
 }
 
@@ -1650,9 +1662,9 @@ function _openIDB(){
     req.onerror=e=>rej(e);
   });
 }
-async function _saveHandleIDB(h){ try{ const db=await _openIDB(); db.transaction(_IDB.store,'readwrite').objectStore(_IDB.store).put(h,_IDB.key); }catch(e){} }
+async function _saveHandleIDB(h){ try{ const db=await _openIDB(); db.transaction(_IDB.store,'readwrite').objectStore(_IDB.store).put(h,_IDB.key); }catch(e){ console.warn('[TBA] _saveHandleIDB failed:',e); } }
 async function _loadHandleIDB(){ try{ const db=await _openIDB(); return new Promise(r=>{ const req=db.transaction(_IDB.store,'readonly').objectStore(_IDB.store).get(_IDB.key); req.onsuccess=e=>r(e.target.result||null); req.onerror=()=>r(null); }); }catch(e){ return null; } }
-async function _clearHandleIDB(){ try{ const db=await _openIDB(); db.transaction(_IDB.store,'readwrite').objectStore(_IDB.store).delete(_IDB.key); }catch(e){} }
+async function _clearHandleIDB(){ try{ const db=await _openIDB(); db.transaction(_IDB.store,'readwrite').objectStore(_IDB.store).delete(_IDB.key); }catch(e){ console.warn('[TBA] _clearHandleIDB failed:',e); } }
 
 function updateFileBadge(){
   const b=document.getElementById('fileBadge');
@@ -1665,7 +1677,7 @@ function updateFileBadge(){
 function autoSaveToFile(){
   if(!linkedFileHandle) return;
   clearTimeout(_fsaTimer);
-  _fsaTimer=setTimeout(()=>writeSessionToFile(true),900);
+  _fsaTimer=setTimeout(()=>writeSessionToFile(true),K.DEBOUNCE_MS);
 }
 
 async function writeSessionToFile(silent=false){
@@ -1732,7 +1744,7 @@ async function restoreLinkedFile(){
       const file=await handle.getFile();
       const data=JSON.parse(await file.text());
       if(data.tender||data.bidders){ restoreState(data); toast('Auto-loaded from '+handle.name); }
-    }catch(e){}
+    }catch(e){ console.warn('[TBA] restoreLinkedFile read failed:',e); toast('Could not auto-load linked file — it may have moved or been renamed','warn'); }
     updateFileBadge();
   } else {
     linkedFileHandle=handle; // badge shows but no auto-read until user interacts
@@ -1761,6 +1773,8 @@ function loadExcelJS(cb){
   toast('Loading Excel library…','warn');
   const s=document.createElement('script');
   s.src='https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js';
+  s.integrity='sha384-rRoXxn2yHlrZYB587Ki9RO1tONhLdM6XfORg7Rw4uwH4/Fh/5nP7IUX91bkaKUgs';
+  s.crossOrigin='anonymous';
   s.onload=cb;
   s.onerror=()=>toast('Failed to load Excel library — check connection','warn');
   document.head.appendChild(s);
@@ -1843,9 +1857,9 @@ async function doExportExcel(){
   ws1.addRow([]).height=4;
   hdrRow(ws1,'PQC CRITERIA — NIT Cl. 11.2',NAVY,WHITE,9);
   kvRow(ws1,'Similar Nature of Job (Cl. 11.3)',t.tsim||'—');
-  kvRow(ws1,'SWO Option A — 1 job ≥ (₹ Lacs)',pqc.swo1?(pqc.swo1/100000).toFixed(2)+' L':'—');
-  kvRow(ws1,'SWO Option B — 2 jobs each ≥ (₹ Lacs)',pqc.swo2?(pqc.swo2/100000).toFixed(2)+' L':'—');
-  kvRow(ws1,'SWO Option C — 3 jobs each ≥ (₹ Lacs)',pqc.swo3?(pqc.swo3/100000).toFixed(2)+' L':'—');
+  kvRow(ws1,'SWO Option A — 1 job ≥ (₹ Lacs)',pqc.swo1?(pqc.swo1/K.LACS).toFixed(2)+' L':'—');
+  kvRow(ws1,'SWO Option B — 2 jobs each ≥ (₹ Lacs)',pqc.swo2?(pqc.swo2/K.LACS).toFixed(2)+' L':'—');
+  kvRow(ws1,'SWO Option C — 3 jobs each ≥ (₹ Lacs)',pqc.swo3?(pqc.swo3/K.LACS).toFixed(2)+' L':'—');
   kvRow(ws1,'Additional PQC (Cl. 12)',pqc.addl||'NIL');
   if(t.tarc==='ARC'){
     ws1.addRow([]).height=4;
@@ -1884,9 +1898,6 @@ async function doExportExcel(){
   });
   ws2.views=[{state:'frozen',xSplit:2,ySplit:2}];
 
-  function lc(v){ return v?((v/100000).toFixed(2)+' L'):'—'; }
-  function fd(s){ if(!s) return '—'; try{ return new Date(s).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }catch(e){ return s; } }
-
   S.bidders.forEach((b,bi)=>{
     const isARC=t.tarc==='ARC';
     if(!b.wos.length){
@@ -1899,16 +1910,16 @@ async function doExportExcel(){
       return;
     }
     b.wos.forEach((wo,wi)=>{
-      const inQP=wo.comp?(()=>{ if(!t.torig)return true; const comp=new Date(wo.comp),orig=new Date(t.torig),from=new Date(orig);from.setFullYear(from.getFullYear()-7);return comp>=from&amp;&amp;comp<=orig; })():null;
+      const woInQP=wo.comp?inQP(wo.comp):null;
       const execVal=isARC&amp;&amp;wo.exec&amp;&amp;wo.date&amp;&amp;wo.comp?(()=>{ const dur=(new Date(wo.comp)-new Date(wo.date))/(1000*60*60*24*365.25); if(dur<=0)return wo.exec; return wo.exec/dur; })():wo.exec;
 
       const rowData=[
         wi===0?bi+1:'', wi===0?b.name:'', wi===0?b.ref||'':'',
-        'WO-'+(wi+1), wo.num||'', fd(wo.date), wo.desc||'', wo.owner||'',
+        'WO-'+(wi+1), wo.num||'', fmtDate(wo.date), wo.desc||'', wo.owner||'',
         wo.sim==='yes'?'YES':wo.sim==='no'?'NO':wo.sim==='partial'?'PARTIAL MATCH':'UNCLEAR',
         wo.cc==='yes'?'YES':wo.cc==='no'?'NO':wo.cc.toUpperCase(),
-        lc(wo.val), isARC?lc(wo.exec)+' → '+lc(execVal):lc(wo.exec),
-        fd(wo.comp), inQP===null?'N/A':inQP?'YES':'NO',
+        toLac(wo.val), isARC?toLac(wo.exec)+' → '+toLac(execVal):toLac(wo.exec),
+        fmtDate(wo.comp), woInQP===null?'N/A':woInQP?'YES':'NO',
         wo.gst==='yes'?'YES':wo.gst==='excl'?'EX-GST':'NOT STATED',
         wo.subw==='no'?'No':wo.subw==='yes-cert'?'Yes (cert)':'Yes (MISSING)',
         wo.bif==='na'?'N/A':wo.bif==='yes'?'Available':'NOT AVAIL.',
@@ -1997,7 +2008,7 @@ async function doExportExcel(){
   S.bidders.forEach((b,i)=>{
     const bestExec=Math.max(0,...(b.qualifyingWOs||[]).map(w=>w.exec));
     const {bg,fg}=verdictStyle(b.verdict);
-    const r=ws3.addRow([i+1,b.name,b.wos.length,(b.qualifyingWOs||[]).length,bestExec?(bestExec/100000).toFixed(2)+' L':'—',b.verdict==='pending'?'Pending':b.verdict,b.pqcOption||b.rejectReason||'—']);
+    const r=ws3.addRow([i+1,b.name,b.wos.length,(b.qualifyingWOs||[]).length,bestExec?(bestExec/K.LACS).toFixed(2)+' L':'—',b.verdict==='pending'?'Pending':b.verdict,b.pqcOption||b.rejectReason||'—']);
     r.height=16;
     [1,3,4].forEach(ci=>{const c=r.getCell(ci);c.fill=fill(i%2===0?WHITE:GREY);c.font=font(INK,false,9);c.border=allThin;c.alignment=align('center','middle');});
     const nc=r.getCell(2); nc.fill=fill(i%2===0?WHITE:GREY); nc.font=font(INK,true,9); nc.border=allThin; nc.alignment=align('left','middle');
@@ -2065,15 +2076,15 @@ function toast(msg,type='ok'){
   const colors={ok:'background:#f0fdf4;border:1px solid #bbf7d0;color:#166534',warn:'background:#fff7ed;border:1px solid #fed7aa;color:#9a3412',err:'background:#fef2f2;border:1px solid #fecaca;color:#991b1b'};
   el.style.cssText=`position:fixed;top:64px;right:22px;z-index:9999;padding:10px 18px;border-radius:5px;font-size:13px;font-family:var(--mono);pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.12);transition:opacity .3s;${colors[type]||colors.ok}`;
   el.textContent=msg;document.body.appendChild(el);
-  setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),300);},2200);
+  setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),K.TOAST_FADE_MS);},K.TOAST_MS);
 }
 
 function updateProgress(){
   const ev=S.bidders.filter(b=>b.verdict!=='pending').length;
   const tot=S.bidders.length;
   const pct=tot>0?Math.round(ev/tot*100):0;
-  document.getElementById('sb-pbar').style.width=pct+'%';
-  document.getElementById('sb-plbl').textContent=`${ev} of ${tot} evaluated`;
+  const pbar=document.getElementById('sb-pbar'); if(pbar) pbar.style.width=pct+'%';
+  const plbl=document.getElementById('sb-plbl'); if(plbl) plbl.textContent=`${ev} of ${tot} evaluated`;
   updateQCount();
 }
 
@@ -2084,6 +2095,7 @@ let _asTimer=null;
 function autoSave(){
   const dot=document.getElementById('as-dot');
   const lbl=document.getElementById('as-lbl');
+  if(!dot||!lbl) return;
   dot.className='as-dot saving';
   lbl.textContent='Saving…';
   clearTimeout(_asTimer);
@@ -2093,10 +2105,10 @@ function autoSave(){
       localStorage.setItem('tba_v3_ts',new Date().toISOString());
       dot.className='as-dot saved';
       lbl.textContent='Saved '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-    }catch(e){dot.className='as-dot';lbl.textContent='Save failed';}
+    }catch(e){ console.error('[TBA] localStorage save failed:',e); if(dot)dot.className='as-dot'; if(lbl)lbl.textContent='Save failed'; }
     // Also push to linked file if one is connected
     autoSaveToFile();
-  },900);
+  },K.DEBOUNCE_MS);
 }
 
 function loadFromLocalStorage(){
@@ -2108,7 +2120,7 @@ function loadFromLocalStorage(){
     if(!confirm(`A saved session from ${dtStr} was found. Restore it?`)) return;
     restoreState(JSON.parse(raw));
     toast('Session restored from auto-save ✓','ok');
-  }catch(e){/* ignore */}
+  }catch(e){ console.warn('[TBA] loadFromLocalStorage failed:',e); toast('Could not restore saved session — data may be corrupt','warn'); }
 }
 
 // ════════════════════════════════════════════════════════
@@ -2149,8 +2161,8 @@ function restoreState(data){
   setV('f-torig',t.torig);setV('f-text',t.text);
   setSel('f-ttype',t.ttype);setSel('f-tarc',t.tarc);setSel('f-tcrit',t.tcrit);setSel('f-tsub',t.tsub);
   if(t.torig) calcQP();
-  document.getElementById('sb-chip').textContent=t.tno||'No Tender Loaded';
-  document.getElementById('tb-txt').textContent=t.tno||'Configured';
+  const sbChip=document.getElementById('sb-chip'); if(sbChip) sbChip.textContent=t.tno||'No Tender Loaded';
+  const tbTxt=document.getElementById('tb-txt'); if(tbTxt) tbTxt.textContent=t.tno||'Configured';
   // PQC
   const p=S.pqc;
   setV('p-swo1',p.swo1||'');setV('p-swo2',p.swo2||'');setV('p-swo3',p.swo3||'');
@@ -2196,7 +2208,7 @@ function effectiveExec(wo){
 function printTBA(){
   renderTBAPreview();
   nav('sec-tba');
-  setTimeout(()=>window.print(),300);
+  setTimeout(()=>window.print(),K.PRINT_DELAY_MS);
 }
 
 // ════════════════════════════════════════════════════════
@@ -2276,7 +2288,7 @@ function loadCFG(){
   try{
     const raw = localStorage.getItem('tba_v3_cfg');
     if(raw) CFG = {...CFG, ...JSON.parse(raw)};
-  }catch(e){}
+  }catch(e){ console.warn('[TBA] loadCFG failed — using defaults:',e); }
 }
 function saveCFG(){
   localStorage.setItem('tba_v3_cfg', JSON.stringify(CFG));
