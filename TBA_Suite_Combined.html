@@ -777,7 +777,7 @@ function fmtDate(s){
 function calcQP(){
   const orig=document.getElementById('f-torig').value;
   const ext=document.getElementById('f-text').value;
-  document.getElementById('ext-alert').style.display=(ext&amp;&amp;ext!==orig)?'flex':'none';
+  document.getElementById('ext-alert').style.display=(ext&&ext!==orig)?'flex':'none';
   if(!orig){document.getElementById('qp-from').textContent='—';document.getElementById('qp-to').textContent='—';return;}
   const d=new Date(orig);
   const from=new Date(d);from.setFullYear(from.getFullYear()-K.QP_YEARS);
@@ -883,7 +883,7 @@ function verdictTag(v){return v==='Accepted'?'t-yes':v==='Rejected'?'t-no':v==='
 // ════════════════════════════════════════════════════════
 function woFormHTML(wo=null){
   const v=f=>wo?wo[f]:'';
-  const sel=(f,val)=>wo&amp;&amp;wo[f]===val?'selected':'';
+  const sel=(f,val)=>wo&&wo[f]===val?'selected':'';
   return `
   <div class=&quot;fg&quot;>
     <div class=&quot;fld&quot;><label class=&quot;lbl&quot;>WO Number</label><input type=&quot;text&quot; id=&quot;wf-num&quot; placeholder=&quot;e.g. BPCL/MR/2022/S001&quot; value=&quot;${v('num')}&quot;/></div>
@@ -929,16 +929,16 @@ function woFormHTML(wo=null){
         <option value=&quot;unclear&quot; ${sel('sim','unclear')}>Unclear — insufficient info to assess</option>
         <option value=&quot;no&quot; ${sel('sim','no')}>No — does not meet Cl. 11.3</option>
       </select>
-      <div id=&quot;wf-unclear-panel&quot; style=&quot;margin-top:8px;padding:10px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:5px;display:${wo&amp;&amp;(wo.sim==='unclear'||wo.sim==='partial')?'block':'none'}&quot;>
+      <div id=&quot;wf-unclear-panel&quot; style=&quot;margin-top:8px;padding:10px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:5px;display:${wo&&(wo.sim==='unclear'||wo.sim==='partial')?'block':'none'}&quot;>
         <div style=&quot;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:#b45309;font-weight:700;margin-bottom:8px&quot;>What specifically is unclear or only partially met? (tick all that apply)</div>
         <label style=&quot;display:flex;align-items:flex-start;gap:7px;font-size:12.5px;margin-bottom:6px;cursor:pointer&quot;>
-          <input type=&quot;checkbox&quot; id=&quot;wf-unc-plant&quot; style=&quot;width:auto;margin-top:2px&quot; ${wo&amp;&amp;wo.uncPlant?'checked':''}/> Industry / plant type not verifiable from submitted documents
+          <input type=&quot;checkbox&quot; id=&quot;wf-unc-plant&quot; style=&quot;width:auto;margin-top:2px&quot; ${wo&&wo.uncPlant?'checked':''}/> Industry / plant type not verifiable from submitted documents
         </label>
         <label style=&quot;display:flex;align-items:flex-start;gap:7px;font-size:12.5px;margin-bottom:6px;cursor:pointer&quot;>
-          <input type=&quot;checkbox&quot; id=&quot;wf-unc-scope&quot; style=&quot;width:auto;margin-top:2px&quot; ${wo&amp;&amp;wo.uncScope?'checked':''}/> Activity / equipment / scope of work not clearly described
+          <input type=&quot;checkbox&quot; id=&quot;wf-unc-scope&quot; style=&quot;width:auto;margin-top:2px&quot; ${wo&&wo.uncScope?'checked':''}/> Activity / equipment / scope of work not clearly described
         </label>
         <label style=&quot;display:flex;align-items:flex-start;gap:7px;font-size:12.5px;cursor:pointer&quot;>
-          <input type=&quot;checkbox&quot; id=&quot;wf-unc-value&quot; style=&quot;width:auto;margin-top:2px&quot; ${wo&amp;&amp;wo.uncValue?'checked':''}/> Executed value attributable to similar-nature portion not separately stated
+          <input type=&quot;checkbox&quot; id=&quot;wf-unc-value&quot; style=&quot;width:auto;margin-top:2px&quot; ${wo&&wo.uncValue?'checked':''}/> Executed value attributable to similar-nature portion not separately stated
         </label>
       </div></div>
     <div class=&quot;fld&quot;><label class=&quot;lbl&quot;>Sub-contract Work?</label>
@@ -1014,9 +1014,9 @@ function saveWOEdit(){
     comp:document.getElementById('wf-comp').value,
     gst:document.getElementById('wf-gst').value,
     sim:document.getElementById('wf-sim').value,
-    uncPlant:(document.getElementById('wf-sim').value==='unclear'||document.getElementById('wf-sim').value==='partial')&amp;&amp;document.getElementById('wf-unc-plant').checked,
-    uncScope:(document.getElementById('wf-sim').value==='unclear'||document.getElementById('wf-sim').value==='partial')&amp;&amp;document.getElementById('wf-unc-scope').checked,
-    uncValue:(document.getElementById('wf-sim').value==='unclear'||document.getElementById('wf-sim').value==='partial')&amp;&amp;document.getElementById('wf-unc-value').checked,
+    uncPlant:(document.getElementById('wf-sim').value==='unclear'||document.getElementById('wf-sim').value==='partial')&&document.getElementById('wf-unc-plant').checked,
+    uncScope:(document.getElementById('wf-sim').value==='unclear'||document.getElementById('wf-sim').value==='partial')&&document.getElementById('wf-unc-scope').checked,
+    uncValue:(document.getElementById('wf-sim').value==='unclear'||document.getElementById('wf-sim').value==='partial')&&document.getElementById('wf-unc-value').checked,
     subw:document.getElementById('wf-subw').value,
     bif:document.getElementById('wf-bif').value,
     cur:document.getElementById('wf-cur').value,
@@ -1047,7 +1047,7 @@ function inQP(dateStr){
   const comp=new Date(dateStr);
   const orig=new Date(S.tender.torig);
   const from=new Date(orig);from.setFullYear(from.getFullYear()-K.QP_YEARS);
-  return comp>=from &amp;&amp; comp<=orig;
+  return comp>=from && comp<=orig;
 }
 
 // ════════════════════════════════════════════════════════
@@ -1067,13 +1067,13 @@ const QT={
   'Q-2A':(wo)=>{
     const parts=[];
     const points=[];
-    if(wo.uncPlant||(!wo.uncPlant&amp;&amp;!wo.uncScope&amp;&amp;!wo.uncValue)){
+    if(wo.uncPlant||(!wo.uncPlant&&!wo.uncScope&&!wo.uncValue)){
       points.push(`(a) The nature and type of the plant/facility where the work was carried out — to establish that it qualifies as a plant type meeting the Cl. 11.3 definition for this tender (e.g., client profile, project description, or scope elaboration confirming the industry type).`);
     }
-    if(wo.uncScope||(!wo.uncPlant&amp;&amp;!wo.uncScope&amp;&amp;!wo.uncValue)){
+    if(wo.uncScope||(!wo.uncPlant&&!wo.uncScope&&!wo.uncValue)){
       points.push(`(b) The type of activity, equipment, and scope of work actually performed — specifically confirming whether the work included the activities/equipment specified in NIT Cl. 11.3 (e.g., Schedule of Rates / detailed Scope of Work document or a clarification letter from the client specifying the equipment/activities).`);
     }
-    if(wo.uncValue||(!wo.uncPlant&amp;&amp;!wo.uncScope&amp;&amp;!wo.uncValue)){
+    if(wo.uncValue||(!wo.uncPlant&&!wo.uncScope&&!wo.uncValue)){
       points.push(`(c) The executed value attributable specifically to the similar-nature scope as defined under NIT Cl. 11.3 — as per TBA General Note 4, only the value matching the similar nature of job can be considered. If the CC states a composite value, a separate certificate from the end-client/EIC confirming the value attributable to the qualifying scope is required.`);
     }
     const body=points.map((p,i)=>p).join('\n\n');
@@ -1103,7 +1103,7 @@ function evaluateBidder(bi){
   let rejectReason='';
 
   // Sub-contracting violation
-  if(S.tender.tsub==='No' &amp;&amp; b.sub==='Yes'){
+  if(S.tender.tsub==='No' && b.sub==='Yes'){
     forcedReject=true;
     rejectReason='Sub-contracting indicated in bid — NIT Cl. 23.i prohibits sub-contracting. Unacceptable condition per Cl. 24.v.B(c). Not curable by query.';
   }
@@ -1112,39 +1112,39 @@ function evaluateBidder(bi){
   const qualifyingWOs=[];
   for(const wo of b.wos){
     // Own plant exclusion — hard fail, no query
-    if(isChkOn('CHK_OWN_PLANT') &amp;&amp; wo.own==='yes') continue;
+    if(isChkOn('CHK_OWN_PLANT') && wo.own==='yes') continue;
     // Similar nature = No — always hard fail regardless of config
     if(wo.sim==='no') continue;
     // Completion date outside QP — hard fail (if date is provided)
-    if(isChkOn('CHK_QP_EXCLUDE') &amp;&amp; wo.comp &amp;&amp; !inQP(wo.comp)) continue;
+    if(isChkOn('CHK_QP_EXCLUDE') && wo.comp && !inQP(wo.comp)) continue;
 
     let woQueryNeeded=false;
 
     // WO number / CC number mismatch
-    if(isChkOn('CHK_WO_CC_NUM') &amp;&amp; wo.ccNum &amp;&amp; wo.ccNum.trim() &amp;&amp; wo.ccNum.trim()!==wo.num.trim()){
+    if(isChkOn('CHK_WO_CC_NUM') && wo.ccNum && wo.ccNum.trim() && wo.ccNum.trim()!==wo.num.trim()){
       queries.push(genQ('Q-1E',wo)); woQueryNeeded=true;
     }
 
     if(wo.cc==='no'){ if(isChkOn('CHK_NO_CC')){queries.push(genQ('Q-1D',wo));woQueryNeeded=true;}}
     if(wo.cc==='running'){ if(isChkOn('CHK_RUNNING_WO')){queries.push(genQ('Q-3C',wo));woQueryNeeded=true;}}
     if(wo.cc==='partial'){
-      if(!wo.comp &amp;&amp; isChkOn('CHK_CC_DATE')) queries.push(genQ('Q-1B',wo));
-      if(wo.gst==='no' &amp;&amp; isChkOn('CHK_GST_SILENT')) queries.push(genQ('Q-1A',wo));
+      if(!wo.comp && isChkOn('CHK_CC_DATE')) queries.push(genQ('Q-1B',wo));
+      if(wo.gst==='no' && isChkOn('CHK_GST_SILENT')) queries.push(genQ('Q-1A',wo));
       woQueryNeeded=true;
     }
     if(wo.cc==='yes'){
-      if((wo.gst==='no'||wo.gst==='excl') &amp;&amp; isChkOn('CHK_GST_SILENT')) queries.push(genQ('Q-1A',wo));
-      if(!wo.comp &amp;&amp; isChkOn('CHK_CC_DATE')) {queries.push(genQ('Q-1B',wo));woQueryNeeded=true;}
+      if((wo.gst==='no'||wo.gst==='excl') && isChkOn('CHK_GST_SILENT')) queries.push(genQ('Q-1A',wo));
+      if(!wo.comp && isChkOn('CHK_CC_DATE')) {queries.push(genQ('Q-1B',wo));woQueryNeeded=true;}
     }
-    if(wo.subw==='yes-nocert' &amp;&amp; isChkOn('CHK_SUBCON_CERT')){queries.push(genQ('Q-1C',wo));woQueryNeeded=true;}
+    if(wo.subw==='yes-nocert' && isChkOn('CHK_SUBCON_CERT')){queries.push(genQ('Q-1C',wo));woQueryNeeded=true;}
     // partial and unclear both trigger Q-2A
-    if(wo.sim==='partial' &amp;&amp; isChkOn('CHK_SIM_PARTIAL')){queries.push(genQ('Q-2A',wo));woQueryNeeded=true;}
-    else if(wo.sim==='unclear' &amp;&amp; isChkOn('CHK_SIM_UNCLEAR')){queries.push(genQ('Q-2A',wo));woQueryNeeded=true;}
-    if(wo.bif==='no' &amp;&amp; isChkOn('CHK_BIFURCATION')){queries.push(genQ('Q-2B',wo));woQueryNeeded=true;}
-    if(wo.cur!=='INR' &amp;&amp; isChkOn('CHK_CURRENCY')){queries.push(genQ('Q-3B',wo));}
+    if(wo.sim==='partial' && isChkOn('CHK_SIM_PARTIAL')){queries.push(genQ('Q-2A',wo));woQueryNeeded=true;}
+    else if(wo.sim==='unclear' && isChkOn('CHK_SIM_UNCLEAR')){queries.push(genQ('Q-2A',wo));woQueryNeeded=true;}
+    if(wo.bif==='no' && isChkOn('CHK_BIFURCATION')){queries.push(genQ('Q-2B',wo));woQueryNeeded=true;}
+    if(wo.cur!=='INR' && isChkOn('CHK_CURRENCY')){queries.push(genQ('Q-3B',wo));}
 
     // Qualifying only if no blocking issues
-    if(!woQueryNeeded &amp;&amp; wo.exec>0 &amp;&amp; (wo.cc==='yes'||wo.cc==='partial')){
+    if(!woQueryNeeded && wo.exec>0 && (wo.cc==='yes'||wo.cc==='partial')){
       qualifyingWOs.push(wo);
     }
   }
@@ -1159,11 +1159,11 @@ function evaluateBidder(bi){
       const best=Math.max(0,...qualifyingWOs.map(w=>effectiveExec(w)));
       if(best>=pqc.swo1){pqcMet=true;metOption='A';}
     }
-    if(!pqcMet &amp;&amp; pqc.swo2>0){
+    if(!pqcMet && pqc.swo2>0){
       const elig=qualifyingWOs.filter(w=>effectiveExec(w)>=pqc.swo2);
       if(elig.length>=2){pqcMet=true;metOption='B';}
     }
-    if(!pqcMet &amp;&amp; pqc.swo3>0){
+    if(!pqcMet && pqc.swo3>0){
       const elig=qualifyingWOs.filter(w=>effectiveExec(w)>=pqc.swo3);
       if(elig.length>=3){pqcMet=true;metOption='C';}
     }
@@ -1199,8 +1199,8 @@ function buildRejectReason(b,qWOs){
     const reasons=[];
     const ownPlant=allWOs.filter(w=>w.own==='yes').length;
     const notSimilar=allWOs.filter(w=>w.sim==='no').length;
-    const outsideQP=allWOs.filter(w=>w.comp&amp;&amp;!inQP(w.comp)).length;
-    const withQueries=allWOs.filter(w=>w.sim!=='no'&amp;&amp;w.own!=='yes'&amp;&amp;(!w.comp||inQP(w.comp))).length;
+    const outsideQP=allWOs.filter(w=>w.comp&&!inQP(w.comp)).length;
+    const withQueries=allWOs.filter(w=>w.sim!=='no'&&w.own!=='yes'&&(!w.comp||inQP(w.comp))).length;
     if(ownPlant) reasons.push(`${ownPlant} WO(s) excluded — work carried out at bidder's own plant/project (Cl. 24.iii.B(l))`);
     if(notSimilar) reasons.push(`${notSimilar} WO(s) excluded — scope does not meet Similar Nature definition under NIT Cl. 11.3`);
     if(outsideQP) reasons.push(`${outsideQP} WO(s) excluded — completion date falls outside the 7-year qualifying period (Cl. 24.iii.B(a))`);
@@ -1245,7 +1245,7 @@ function renderEvalBidder(bi){
   const b=S.bidders[bi];
   if(!b) return;
   const area=document.getElementById('eval-area');
-  const subViolation=S.tender.tsub==='No'&amp;&amp;b.sub==='Yes';
+  const subViolation=S.tender.tsub==='No'&&b.sub==='Yes';
   const pqc=S.pqc;
   const qWOs=b.qualifyingWOs||[];
   const vColor=b.verdict==='Accepted'?'var(--grn)':b.verdict==='Rejected'?'var(--red)':b.verdict==='Query'?'var(--pur)':'var(--muted)';
@@ -1259,19 +1259,19 @@ function renderEvalBidder(bi){
   if(pqc.swo1>0){
     const best=Math.max(0,...qWOs.map(w=>effectiveExec(w)));
     const pass=best>=pqc.swo1;
-    const na=!pass &amp;&amp; metOpt!=='' &amp;&amp; metOpt!=='A'; // met via another option
+    const na=!pass && metOpt!=='' && metOpt!=='A'; // met via another option
     pqcRows.push({lbl:'Option A — 1 job',req:toLacN(pqc.swo1),have:na?'N/A':toLacN(best)+arcNote,pass,na});
   }
   if(pqc.swo2>0){
     const e=qWOs.filter(w=>effectiveExec(w)>=pqc.swo2).length;
     const pass=e>=2;
-    const na=!pass &amp;&amp; metOpt!=='' &amp;&amp; metOpt!=='B';
+    const na=!pass && metOpt!=='' && metOpt!=='B';
     pqcRows.push({lbl:'Option B — 2 jobs (each)',req:toLacN(pqc.swo2),have:na?'N/A':`${e} WO(s)${arcNote}`,pass,na});
   }
   if(pqc.swo3>0){
     const e=qWOs.filter(w=>effectiveExec(w)>=pqc.swo3).length;
     const pass=e>=3;
-    const na=!pass &amp;&amp; metOpt!=='' &amp;&amp; metOpt!=='C';
+    const na=!pass && metOpt!=='' && metOpt!=='C';
     pqcRows.push({lbl:'Option C — 3 jobs (each)',req:toLacN(pqc.swo3),have:na?'N/A':`${e} WO(s)${arcNote}`,pass,na});
   }
 
@@ -1311,7 +1311,7 @@ function renderEvalBidder(bi){
       <div style=&quot;font-family:var(--serif);font-size:18px;font-weight:900;color:${vColor};margin-bottom:10px&quot;>
         ${b.verdict==='Accepted'?'✓ TECHNICALLY ACCEPTED':b.verdict==='Rejected'?'✗ TECHNICALLY REJECTED':'⚠ QUERY PENDING — Evaluation Deferred'}
       </div>
-      ${b.verdict==='Rejected'&amp;&amp;b.rejectReason?`<div class=&quot;alert a-err&quot; style=&quot;margin-bottom:10px&quot;><div class=&quot;ai&quot;>✗</div><div><strong>Reason:</strong> ${b.rejectReason}</div></div>`:''}
+      ${b.verdict==='Rejected'&&b.rejectReason?`<div class=&quot;alert a-err&quot; style=&quot;margin-bottom:10px&quot;><div class=&quot;ai&quot;>✗</div><div><strong>Reason:</strong> ${b.rejectReason}</div></div>`:''}
       ${b.pqcOption?`<div class=&quot;alert a-ok&quot; style=&quot;margin-bottom:10px&quot;><div class=&quot;ai&quot;>✓</div><div><strong>PQC Met via:</strong> ${b.pqcOption}</div></div>`:''}
 
       ${pqcRows.length?`
@@ -1361,7 +1361,7 @@ function renderWOBlock(bi,wi,wo){
   const hasIssues=issues.some(i=>i.cls!=='a-ok');
   // treat empty sim as unclear
   const simVal=wo.sim||'unclear';
-  const statusCls=wo.own==='yes'||simVal==='no'?'t-no':simVal==='partial'?'t-wrn':hasIssues?'t-qry':inQP(wo.comp)&amp;&amp;wo.exec>0?'t-yes':'t-wrn';
+  const statusCls=wo.own==='yes'||simVal==='no'?'t-no':simVal==='partial'?'t-wrn':hasIssues?'t-qry':inQP(wo.comp)&&wo.exec>0?'t-yes':'t-wrn';
   const statusLbl=wo.own==='yes'?'✗ Own Plant':simVal==='no'?'✗ Not Similar':simVal==='partial'?'⚠ Partial Match':hasIssues?'⚠ Query Needed':wo.exec>0?'✓ Qualifying':'⚠ Check Values';
   return `
   <div class=&quot;wo-block&quot;>
@@ -1377,11 +1377,11 @@ function renderWOBlock(bi,wi,wo){
         <div class=&quot;wo-field&quot;><div class=&quot;wfl&quot;>WO Commencement</div>${fmtDate(wo.date)}</div>
         <div class=&quot;wo-field&quot;><div class=&quot;wfl&quot;>WO Value (ref)</div><span style=&quot;font-family:var(--mono)&quot;>${toLacN(wo.val)}</span></div>
         <div class=&quot;wo-field&quot;><div class=&quot;wfl&quot;>CC Executed Value</div><strong style=&quot;font-family:var(--mono);color:var(--accent)&quot;>${toLacN(wo.exec)}</strong></div>
-        <div class=&quot;wo-field&quot;><div class=&quot;wfl&quot;>CC Completion Date</div><span style=&quot;${wo.comp&amp;&amp;!inQP(wo.comp)?'color:var(--red);font-weight:700':''}&quot;>${fmtDate(wo.comp)}</span></div>
-        ${S.tender.tarc==='ARC'&amp;&amp;wo.exec&amp;&amp;wo.date&amp;&amp;wo.comp?`<div class=&quot;wo-field&quot;><div class=&quot;wfl&quot;>Annualised Value</div><strong style=&quot;font-family:var(--mono);color:var(--pur)&quot;>${toLacN(effectiveExec(wo))}/yr</strong></div>`:''}
+        <div class=&quot;wo-field&quot;><div class=&quot;wfl&quot;>CC Completion Date</div><span style=&quot;${wo.comp&&!inQP(wo.comp)?'color:var(--red);font-weight:700':''}&quot;>${fmtDate(wo.comp)}</span></div>
+        ${S.tender.tarc==='ARC'&&wo.exec&&wo.date&&wo.comp?`<div class=&quot;wo-field&quot;><div class=&quot;wfl&quot;>Annualised Value</div><strong style=&quot;font-family:var(--mono);color:var(--pur)&quot;>${toLacN(effectiveExec(wo))}/yr</strong></div>`:''}
         <div class=&quot;wo-field&quot;><div class=&quot;wfl&quot;>CC Status</div>${ccTag(wo.cc)}</div>
         <div class=&quot;wo-field&quot;><div class=&quot;wfl&quot;>Similar Nature</div>${simTag(wo.sim||'unclear')}</div>
-        ${wo.ccNum&amp;&amp;wo.ccNum.trim()?`<div class=&quot;wo-field&quot; style=&quot;grid-column:1/-1&quot;><div class=&quot;wfl&quot;>WO No. in CC</div><span style=&quot;font-family:var(--mono);font-size:11px;${wo.ccNum.trim()!==wo.num.trim()?'color:var(--red);font-weight:700':''}&quot;>${wo.ccNum}${wo.ccNum.trim()!==wo.num.trim()?' ⚠ Mismatch with WO No.':' ✓ Matches'}</span></div>`:''}
+        ${wo.ccNum&&wo.ccNum.trim()?`<div class=&quot;wo-field&quot; style=&quot;grid-column:1/-1&quot;><div class=&quot;wfl&quot;>WO No. in CC</div><span style=&quot;font-family:var(--mono);font-size:11px;${wo.ccNum.trim()!==wo.num.trim()?'color:var(--red);font-weight:700':''}&quot;>${wo.ccNum}${wo.ccNum.trim()!==wo.num.trim()?' ⚠ Mismatch with WO No.':' ✓ Matches'}</span></div>`:''}
       </div>
       <div style=&quot;font-size:12px;color:var(--txt2);margin-bottom:8px&quot;><strong>Scope:</strong> ${wo.desc||'—'}</div>
       ${issues.map(iss=>`<div class=&quot;alert ${iss.cls}&quot; style=&quot;font-size:12px;margin-bottom:5px&quot;><div class=&quot;ai&quot;>${iss.icon}</div><div>${iss.msg}</div></div>`).join('')}
@@ -1406,18 +1406,18 @@ function getWOIssues(wo){
   const iss=[];
   if(wo.own==='yes') iss.push({cls:'a-err',icon:'🚫',msg:'<strong>Own Plant/Project:</strong> Work done for bidder\'s own plant excluded per Cl. 24.iii.B(l). Cannot count for PQC.'});
   if(wo.cur!=='INR') iss.push({cls:'a-wrn',icon:'💱',msg:`<strong>Foreign Currency (${wo.cur}):</strong> Must convert to INR at SBI bill selling rate on WO date — Cl. 24.iii.B(n). Query Q-3B will be raised.`});
-  if(wo.ccNum&amp;&amp;wo.ccNum.trim()&amp;&amp;wo.ccNum.trim()!==wo.num.trim()) iss.push({cls:'a-wrn',icon:'🔢',msg:`<strong>WO / CC Number Mismatch:</strong> WO bears No. <em>${wo.num}</em> but the Completion Certificate references No. <em>${wo.ccNum}</em>. Query Q-1E raised to confirm they relate to the same scope of work — Cl. 24.iii.B(b)(1).`});
+  if(wo.ccNum&&wo.ccNum.trim()&&wo.ccNum.trim()!==wo.num.trim()) iss.push({cls:'a-wrn',icon:'🔢',msg:`<strong>WO / CC Number Mismatch:</strong> WO bears No. <em>${wo.num}</em> but the Completion Certificate references No. <em>${wo.ccNum}</em>. Query Q-1E raised to confirm they relate to the same scope of work — Cl. 24.iii.B(b)(1).`});
   if(wo.cc==='no') iss.push({cls:'a-wrn',icon:'📄',msg:'<strong>No CC Submitted:</strong> Mandatory per Cl. 24.iii.B(b)(2). Query Q-1D raised regardless of WO value.'});
   if(wo.cc==='running') iss.push({cls:'a-wrn',icon:'🔄',msg:'<strong>Running WO:</strong> No CC yet. Query Q-3C raised. If job completed — submit CC for evaluation. If still running — WO cannot count for PQC.'});
   if(wo.cc==='partial') iss.push({cls:'a-wrn',icon:'⚠',msg:'<strong>Incomplete CC:</strong> Queries raised for missing elements.'});
-  if((wo.gst==='no'||wo.gst==='excl')&amp;&amp;(wo.cc==='yes'||wo.cc==='partial')) iss.push({cls:'a-wrn',icon:'📊',msg:`<strong>GST ${wo.gst==='excl'?'stated as ex-GST':'not specified'} in CC:</strong> Query Q-1A raised. Per Cl. 24.iii.B(j) — treated as inclusive until clarified.`});
+  if((wo.gst==='no'||wo.gst==='excl')&&(wo.cc==='yes'||wo.cc==='partial')) iss.push({cls:'a-wrn',icon:'📊',msg:`<strong>GST ${wo.gst==='excl'?'stated as ex-GST':'not specified'} in CC:</strong> Query Q-1A raised. Per Cl. 24.iii.B(j) — treated as inclusive until clarified.`});
   if(wo.subw==='yes-nocert') iss.push({cls:'a-wrn',icon:'🔗',msg:'<strong>Sub-contract — No End-User Cert:</strong> Cl. 24.iii.B(b)(3) requires end-user certificate confirming sub-contracting was permitted. Query Q-1C raised.'});
   if(wo.bif==='no') iss.push({cls:'a-wrn',icon:'📐',msg:'<strong>Composite CC — No Bifurcation:</strong> TBA Note 4 — only similar-nature portion\'s value to be entered. Query Q-2B raised for client bifurcation certificate.'});
   if(wo.sim==='partial') iss.push({cls:'a-wrn',icon:'🔍',msg:'<strong>Conditionally Qualifies — Partial Scope Match:</strong> Job description shares some keywords/activities with NIT Cl. 11.3 but does not fully satisfy the definition. Query Q-2A raised for documentary confirmation of the qualifying scope and its executed value.'});
   if(wo.sim==='unclear') iss.push({cls:'a-wrn',icon:'🔍',msg:'<strong>Similar Nature Unclear:</strong> Insufficient information to assess against NIT Cl. 11.3. Query Q-2A raised covering all applicable gaps.'});
   if(wo.sim==='no') iss.push({cls:'a-err',icon:'✗',msg:'<strong>Does Not Meet Similar Nature:</strong> Scope does not satisfy NIT Cl. 11.3 definition. Excluded from PQC evaluation — not curable by query.'});
-  if(wo.comp&amp;&amp;!inQP(wo.comp)) iss.push({cls:'a-err',icon:'📅',msg:`<strong>Outside Qualifying Period:</strong> Completion date ${fmtDate(wo.comp)} is before the 7-year QP start. WO excluded. Only completion date matters — WO issue date is irrelevant per Cl. 24.iii.B(a).`});
-  if(!wo.comp&amp;&amp;wo.cc==='yes') iss.push({cls:'a-wrn',icon:'📅',msg:'<strong>Completion Date Missing in CC:</strong> Cl. 24.iii.B(b)(2). Query Q-1B raised.'});
+  if(wo.comp&&!inQP(wo.comp)) iss.push({cls:'a-err',icon:'📅',msg:`<strong>Outside Qualifying Period:</strong> Completion date ${fmtDate(wo.comp)} is before the 7-year QP start. WO excluded. Only completion date matters — WO issue date is irrelevant per Cl. 24.iii.B(a).`});
+  if(!wo.comp&&wo.cc==='yes') iss.push({cls:'a-wrn',icon:'📅',msg:'<strong>Completion Date Missing in CC:</strong> Cl. 24.iii.B(b)(2). Query Q-1B raised.'});
   if(!iss.length) iss.push({cls:'a-ok',icon:'✓',msg:'No issues detected with this WO.'});
   return iss;
 }
@@ -1598,13 +1598,13 @@ function renderTBAPreview(){
             ${wi===0?`<td rowspan=&quot;${b.wos.length}&quot; style=&quot;padding:5px;border:1px solid #ddd;font-weight:700;vertical-align:top;text-align:center&quot;>${i+1}</td>
             <td rowspan=&quot;${b.wos.length}&quot; style=&quot;padding:5px;border:1px solid #ddd;font-weight:600;vertical-align:top&quot;>${b.name}<br><span style=&quot;font-size:9px;color:#999&quot;>${b.ref||''}</span></td>`:''}
             <td style=&quot;padding:5px;border:1px solid #ddd;font-size:9.5px&quot;>${wo.num||'—'}<br><span style=&quot;color:#999&quot;>${fmtDate(wo.date)}</span></td>
-            <td style=&quot;padding:5px;border:1px solid #ddd;font-size:9.5px&quot;>${(wo.desc||'').substring(0,70)+(wo.desc&amp;&amp;wo.desc.length>70?'…':'')}<br><span style=&quot;color:#777;font-size:9px&quot;>${wo.owner||''}</span></td>
+            <td style=&quot;padding:5px;border:1px solid #ddd;font-size:9.5px&quot;>${(wo.desc||'').substring(0,70)+(wo.desc&&wo.desc.length>70?'…':'')}<br><span style=&quot;color:#777;font-size:9px&quot;>${wo.owner||''}</span></td>
             <td style=&quot;padding:5px;border:1px solid #ddd;text-align:center;font-weight:700;color:${wo.sim==='yes'?'green':wo.sim==='no'?'red':'orange'}&quot;>${wo.sim==='yes'?'YES':wo.sim==='no'?'NO':'?'}</td>
             <td style=&quot;padding:5px;border:1px solid #ddd;text-align:center;font-weight:700;color:${wo.cc==='yes'?'green':'#c2410c'}&quot;>${wo.cc==='yes'?'YES':wo.cc==='no'?'NO':wo.cc.toUpperCase()}</td>
             <td style=&quot;padding:5px;border:1px solid #ddd;text-align:right;font-family:monospace;font-size:9.5px&quot;>${toLac(wo.val)}</td>
             <td style=&quot;padding:5px;border:1px solid #ddd;text-align:right;font-family:monospace;font-size:9.5px;font-weight:700&quot;>${toLac(wo.exec)}</td>
             ${isARC?`<td style=&quot;padding:5px;border:1px solid #ddd;text-align:right;font-family:monospace;font-size:9.5px;font-weight:700;color:#1d6fb5&quot;>${wo.exec?toLac(effectiveExec(wo)):'—'}</td>`:''}
-            <td style=&quot;padding:5px;border:1px solid #ddd;text-align:center;font-size:9.5px;color:${wo.comp&amp;&amp;!inQP(wo.comp)?'red':'inherit'}&quot;>${fmtDate(wo.comp)}</td>
+            <td style=&quot;padding:5px;border:1px solid #ddd;text-align:center;font-size:9.5px;color:${wo.comp&&!inQP(wo.comp)?'red':'inherit'}&quot;>${fmtDate(wo.comp)}</td>
             ${wi===0?`<td rowspan=&quot;${b.wos.length}&quot; style=&quot;padding:5px;border:1px solid #ddd;text-align:center;font-weight:700;vertical-align:middle;color:${b.pqcMet?'green':'red'}&quot;>${b.pqcMet?'YES':'NO'}</td>
             <td rowspan=&quot;${b.wos.length}&quot; style=&quot;padding:5px;border:1px solid #ddd;text-align:center;font-weight:700;vertical-align:middle;color:${b.verdict==='Accepted'?'green':b.verdict==='Rejected'?'red':'purple'}&quot;>${b.verdict==='pending'?'PENDING':b.verdict.toUpperCase()}</td>
             <td rowspan=&quot;${b.wos.length}&quot; style=&quot;padding:5px;border:1px solid #ddd;font-size:9px;vertical-align:top&quot;>${b.rejectReason||b.pqcOption||b.remarks||'NIL'}</td>`:''}
@@ -1911,7 +1911,7 @@ async function doExportExcel(){
     }
     b.wos.forEach((wo,wi)=>{
       const woInQP=wo.comp?inQP(wo.comp):null;
-      const execVal=isARC&amp;&amp;wo.exec&amp;&amp;wo.date&amp;&amp;wo.comp?(()=>{ const dur=(new Date(wo.comp)-new Date(wo.date))/(1000*60*60*24*365.25); if(dur<=0)return wo.exec; return wo.exec/dur; })():wo.exec;
+      const execVal=isARC&&wo.exec&&wo.date&&wo.comp?(()=>{ const dur=(new Date(wo.comp)-new Date(wo.date))/(1000*60*60*24*365.25); if(dur<=0)return wo.exec; return wo.exec/dur; })():wo.exec;
 
       const rowData=[
         wi===0?bi+1:'', wi===0?b.name:'', wi===0?b.ref||'':'',
@@ -1933,7 +1933,7 @@ async function doExportExcel(){
 
       // Bidder # and name — shaded every other bidder
       const rowBg=bi%2===0?WHITE:GREY;
-      [1,2,3].forEach(ci=>{const c=r.getCell(ci);c.fill=fill(wi===0?rowBg:GREY2);c.font=font(ci===2?INK:INK2,ci===2&amp;&amp;wi===0,9);c.border=allThin;c.alignment=align('left','middle');});
+      [1,2,3].forEach(ci=>{const c=r.getCell(ci);c.fill=fill(wi===0?rowBg:GREY2);c.font=font(ci===2?INK:INK2,ci===2&&wi===0,9);c.border=allThin;c.alignment=align('left','middle');});
       // WO detail cols
       [4,5,6,7,8].forEach(ci=>{const c=r.getCell(ci);c.fill=fill(rowBg);c.font=font(INK,false,9);c.border=allThin;c.alignment=align(ci>=7?'left':'center','middle',ci>=7);});
       // Similar nature
@@ -1950,10 +1950,10 @@ async function doExportExcel(){
       [11,12].forEach(ci=>{const c=r.getCell(ci);c.fill=fill(BLU_BG);c.font=font(BLU_FG,true,9);c.border=allThin;c.alignment=align('center','middle');});
       // Completion + QP
       const compCell=r.getCell(13);
-      compCell.fill=fill(inQP===false?RED_BG:rowBg); compCell.font=font(inQP===false?RED_FG:INK,false,9);
+      compCell.fill=fill(woInQP===false?RED_BG:rowBg); compCell.font=font(woInQP===false?RED_FG:INK,false,9);
       compCell.border=allThin; compCell.alignment=align('center','middle');
       const qpCell=r.getCell(14);
-      qpCell.fill=fill(inQP===false?RED_BG:inQP===true?GRN_BG:GREY); qpCell.font=font(inQP===false?RED_FG:inQP===true?GRN_FG:INK2,true,9);
+      qpCell.fill=fill(woInQP===false?RED_BG:woInQP===true?GRN_BG:GREY); qpCell.font=font(woInQP===false?RED_FG:woInQP===true?GRN_FG:INK2,true,9);
       qpCell.border=allThin; qpCell.alignment=align('center','middle');
       // Misc detail cols
       [15,16,17,18,19].forEach(ci=>{const c=r.getCell(ci);c.fill=fill(rowBg);c.font=font(INK,false,9);c.border=allThin;c.alignment=align('center','middle');});
@@ -2140,7 +2140,7 @@ function loadSession(evt){
   reader.onload=e=>{
     try{
       const data=JSON.parse(e.target.result);
-      if(!data.tender&amp;&amp;!data.bidders) throw new Error('Invalid session file');
+      if(!data.tender&&!data.bidders) throw new Error('Invalid session file');
       if(!confirm('Loading this session will replace all current data. Continue?')) return;
       restoreState(data);
       toast('Session loaded: '+file.name,'ok');
@@ -2174,14 +2174,14 @@ function restoreState(data){
   S.bidders.forEach((_,i)=>evaluateBidder(i));
   updateProgress();
 }
-function setV(id,val){const el=document.getElementById(id);if(el&amp;&amp;val!==undefined&amp;&amp;val!==null)el.value=val;}
-function setSel(id,val){const el=document.getElementById(id);if(el&amp;&amp;val){for(const o of el.options){if(o.value===val){o.selected=true;break;}}}}
+function setV(id,val){const el=document.getElementById(id);if(el&&val!==undefined&&val!==null)el.value=val;}
+function setSel(id,val){const el=document.getElementById(id);if(el&&val){for(const o of el.options){if(o.value===val){o.selected=true;break;}}}}
 
 // ════════════════════════════════════════════════════════
 // ARC ANNUALISATION HELPERS
 // ════════════════════════════════════════════════════════
 function toggleARCPanel(){
-  const isARC=S.tender.tarc==='ARC'||(document.getElementById('f-tarc')&amp;&amp;document.getElementById('f-tarc').value==='ARC');
+  const isARC=S.tender.tarc==='ARC'||(document.getElementById('f-tarc')&&document.getElementById('f-tarc').value==='ARC');
   const panel=document.getElementById('arc-panel');
   if(panel) panel.style.display=isARC?'block':'none';
 }
@@ -2297,7 +2297,7 @@ function saveCFG(){
 // ── Helpers: get effective clause / check state / query meta
 function getCl(key){ return CFG.clauses[key] || DEFAULT_CLAUSES[key]?.val || key; }
 function isCheckEnabled(key){
-  if(CFG.checks[key] &amp;&amp; CFG.checks[key].enabled === false) return false;
+  if(CFG.checks[key] && CFG.checks[key].enabled === false) return false;
   return true; // default on
 }
 function getQMeta(id){
@@ -2373,7 +2373,7 @@ function renderClausesTab(){
   const el = document.getElementById('clauses-list');
   el.innerHTML = Object.entries(DEFAULT_CLAUSES).map(([key, def])=>{
     const custom = CFG.clauses[key];
-    const isChanged = custom &amp;&amp; custom !== def.val;
+    const isChanged = custom && custom !== def.val;
     return `<div class=&quot;cfg-item&quot;>
       <div class=&quot;cfg-item-hd&quot;>
         <span class=&quot;cfg-item-id&quot;>${key}</span>
@@ -5138,7 +5138,7 @@ nav *{max-width:none}
         if(numEl.textContent.trim() === origNum){
           if(override.num) numEl.textContent = override.num;
           const textEl = numEl.nextElementSibling;
-          if(textEl &amp;&amp; textEl.classList.contains('clause-text') &amp;&amp; override.text){
+          if(textEl && textEl.classList.contains('clause-text') && override.text){
             // Preserve inner bold/em tags by only updating text nodes if possible
             // For safety, use a wrapped span approach
             textEl.innerHTML = override.text.replace(/\n/g,'<br/>');
@@ -5157,7 +5157,7 @@ nav *{max-width:none}
         if(numEl.textContent.trim() === id){
           if(override.id) numEl.textContent = override.id;
           const textEl = numEl.nextElementSibling;
-          if(textEl &amp;&amp; textEl.classList.contains('clause-text')){
+          if(textEl && textEl.classList.contains('clause-text')){
             textEl.innerHTML =
               '<strong>When to raise:</strong> ' + (override.when||'') +
               '<br/><br/><strong>Clause basis:</strong> ' + (override.basis||'') +
@@ -5410,7 +5410,7 @@ function answerQ(chosen){
   document.querySelectorAll('.q-opt').forEach((b,i)=>{
     b.disabled=true;
     if(i===q.ans)b.classList.add('correct');
-    else if(i===chosen&amp;&amp;!correct)b.classList.add('wrong');
+    else if(i===chosen&&!correct)b.classList.add('wrong');
   });
   const exp=document.getElementById('qexp');
   exp.className=`q-explanation show`;
@@ -5690,7 +5690,7 @@ function saveAllAdminChanges() {
     const val = inp.value.trim();
     const origEl = document.querySelector(`[data-cms-id=&quot;clause-num-${idx}&quot;]`);
     const orig = origEl ? origEl.getAttribute('data-cms-original') || origEl.innerHTML : '';
-    if (val &amp;&amp; val !== (origEl ? origEl.innerHTML : '')) {
+    if (val && val !== (origEl ? origEl.innerHTML : '')) {
       overrides['clause-num-' + idx] = val;
     }
   });
@@ -5718,8 +5718,8 @@ function saveAllAdminChanges() {
   [1,2,3,4].forEach(i => {
     const nInp = document.getElementById(`adm-sn-stat-${i}-n`);
     const lInp = document.getElementById(`adm-sl-stat-${i}-l`);
-    if (nInp &amp;&amp; nInp.value.trim()) overrides[`stat-${i}-n`] = nInp.value.trim();
-    if (lInp &amp;&amp; lInp.value.trim()) overrides[`stat-${i}-l`] = lInp.value.trim();
+    if (nInp && nInp.value.trim()) overrides[`stat-${i}-n`] = nInp.value.trim();
+    if (lInp && lInp.value.trim()) overrides[`stat-${i}-l`] = lInp.value.trim();
   });
 
   cmsSave(overrides);
@@ -5769,8 +5769,8 @@ function resetStat(nId, lId) {
   const lEl = document.querySelector(`[data-cms-id=&quot;${lId}&quot;]`);
   const nInp = document.getElementById('adm-sn-' + nId);
   const lInp = document.getElementById('adm-sl-' + lId);
-  if (nEl &amp;&amp; nInp) { nInp.value = nEl.textContent; document.getElementById('adm-stat-preview-' + nId).textContent = nEl.textContent; }
-  if (lEl &amp;&amp; lInp) lInp.value = lEl.textContent;
+  if (nEl && nInp) { nInp.value = nEl.textContent; document.getElementById('adm-stat-preview-' + nId).textContent = nEl.textContent; }
+  if (lEl && lInp) lInp.value = lEl.textContent;
   updateOverrideCount(overrides);
 }
 
@@ -5855,8 +5855,8 @@ async function changeAdminPassword() {
 // ── HTML escape helper ──
 function escHtml(str) {
   return String(str)
-    .replace(/&amp;/g,'&amp;amp;').replace(/</g,'&amp;lt;')
-    .replace(/>/g,'&amp;gt;').replace(/&quot;/g,'&amp;quot;');
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 </script>
