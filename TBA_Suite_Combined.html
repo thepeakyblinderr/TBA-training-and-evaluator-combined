@@ -378,8 +378,7 @@ hr.d{border:none;border-top:1px solid var(--border);margin:18px 0}
 }</style>
 
 <style id=&quot;iframe-override&quot;>
-/* When embedded in the TBA Suite wrapper, hide the internal topbar */
-.topbar { display: none !important; }
+/* Adjustments when embedded in the TBA Suite wrapper */
 main { padding-top: 0 !important; }
 </style>
 </head>
@@ -412,23 +411,12 @@ main { padding-top: 0 !important; }
   <div class=&quot;sb-foot&quot;>
     <div class=&quot;sb-plbl&quot; id=&quot;sb-plbl&quot;>0 of 0 evaluated</div>
     <div class=&quot;sb-pbar&quot;><div class=&quot;sb-pbar-fill&quot; id=&quot;sb-pbar&quot; style=&quot;width:0%&quot;></div></div>
+    <button class=&quot;btn b-sm&quot; style=&quot;margin-top:10px;width:100%;background:#1a1a2e;color:#f0c87a;border:1px solid rgba(201,137,58,.4);font-size:11px&quot; onclick=&quot;window.parent.postMessage({action:'switchToTutorial'},'*')&quot;>📖 Open Training Guide</button>
   </div>
 </aside>
 
 <!-- ════════ MAIN ════════ -->
 <main>
-  <div class=&quot;topbar&quot;>
-    <div class=&quot;tb-title&quot;>TBA Evaluator v3 · IOCL Procurement</div>
-    <div class=&quot;tb-sp&quot;></div>
-    <span id=&quot;fileBadge&quot; style=&quot;display:none;align-items:center;gap:5px;background:rgba(29,111,181,.18);border:1px solid rgba(29,111,181,.35);border-radius:5px;padding:3px 10px;font-size:10px;color:#93c5fd;font-family:var(--mono);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap&quot;></span>
-    <div class=&quot;tb-pill ok&quot;><div class=&quot;tb-dot&quot;></div><span id=&quot;tb-txt&quot;>Ready to Configure</span></div>
-    <button class=&quot;btn b-out b-sm&quot; onclick=&quot;showFileMenu()&quot;>📎 Link File</button>
-    <button class=&quot;btn b-out b-sm&quot; onclick=&quot;saveSession()&quot; title=&quot;Download session as JSON&quot;>💾 Save JSON</button>
-    <label class=&quot;btn b-out b-sm&quot; style=&quot;cursor:pointer&quot; title=&quot;Load a previously saved JSON session&quot;>📂 Load JSON<input type=&quot;file&quot; accept=&quot;.json&quot; onchange=&quot;loadSession(event)&quot; style=&quot;display:none&quot;/></label>
-    <button class=&quot;btn b-out b-sm&quot; onclick=&quot;exportExcel()&quot;>📊 Export Excel</button>
-    <button class=&quot;btn b-out b-sm&quot; onclick=&quot;printTBA()&quot;>🖨 Print TBA</button>
-    <button class=&quot;btn b-sm&quot; style=&quot;background:#1a1a2e;color:#f0c87a;border:1px solid rgba(201,137,58,.4)&quot; onclick=&quot;window.parent.postMessage({action:'switchToTutorial'},'*')&quot;>📖 Open Training Guide</button>
-  </div>
 
   <!-- ══ SETUP ══ -->
   <section class=&quot;sec act&quot; id=&quot;sec-setup&quot;>
@@ -800,7 +788,6 @@ function saveSetup(){
     qpTo:document.getElementById('qp-to').textContent,
   };
   document.getElementById('sb-chip').textContent=S.tender.tno||'No Tender Loaded';
-  document.getElementById('tb-txt').textContent=S.tender.tno||'Configured';
   toggleARCPanel();
   toast('Tender configuration saved ✓','ok');
   updateProgress();
