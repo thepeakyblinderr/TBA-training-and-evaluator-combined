@@ -439,7 +439,14 @@ main { padding-top: 0 !important; }
           <label class="lbl">Sub-contracting Indicated in Bid?</label>
           <select id="nb-sub"><option value="No">No</option><option value="Yes">Yes — indicated in technical bid</option></select>
         </div>
-
+        <div class="fld">
+          <label class="lbl">EMD Bank Guarantee (NIT Cl. 10)</label>
+          <select id="nb-emd">
+            <option value="ok">OK — valid &amp; SFMS compliant</option>
+            <option value="validity">Validity short of requirement (raises Q-4A)</option>
+            <option value="sfms">SFMS field values do not match (raises Q-4A)</option>
+          </select>
+        </div>
       </div>
       <button class="btn b-pri b-sm" onclick="addBidder()">+ Add Bidder</button>
     </div>
@@ -698,12 +705,13 @@ function addBidder(){
     id:Date.now(),name,
     ref:document.getElementById('nb-ref').value,
     sub:document.getElementById('nb-sub').value,
-
+    emd:document.getElementById('nb-emd').value,
     wos:[],verdict:'pending',queries:[],remarks:'',
   });
   document.getElementById('nb-name').value='';
   document.getElementById('nb-ref').value='';
   document.getElementById('nb-sub').value='No';
+  document.getElementById('nb-emd').value='ok';
 
   renderBidderList();
   updateProgress();
@@ -793,8 +801,11 @@ function woFormHTML(wo=null){
         <label style="display:flex;align-items:flex-start;gap:7px;font-size:12.5px;margin-bottom:6px;cursor:pointer">
           <input type="checkbox" id="wf-unc-scope" style="width:auto;margin-top:2px" ${wo&&wo.uncScope?'checked':''}/> Activity / equipment / scope of work not clearly described
         </label>
-        <label style="display:flex;align-items:flex-start;gap:7px;font-size:12.5px;cursor:pointer">
+        <label style="display:flex;align-items:flex-start;gap:7px;font-size:12.5px;margin-bottom:6px;cursor:pointer">
           <input type="checkbox" id="wf-unc-value" style="width:auto;margin-top:2px" ${wo&&wo.uncValue?'checked':''}/> Executed value attributable to similar-nature portion not separately stated
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:7px;font-size:12.5px;cursor:pointer">
+          <input type="checkbox" id="wf-unc-equip" style="width:auto;margin-top:2px" ${wo&&wo.uncEquip?'checked':''}/> Equipment type (heat exchangers / columns / furnace / piping) not specified — raises Q-2C
         </label>
       </div></div>
     <div class="fld"><label class="lbl">Sub-contract Work?</label>
@@ -822,6 +833,14 @@ function woFormHTML(wo=null){
         <option value="no" ${sel('own','no')}>No — external client</option>
         <option value="yes" ${sel('own','yes')}>Yes — bidder's own plant/project</option>
       </select></div>
+    <div class="fld full"><label class="lbl">NIT Special Provision under Cl. 24.iii.B(b)?</label>
+      <select id="wf-special">
+        <option value="na" ${sel('special','na')}>N/A — standard CC route applies</option>
+        <option value="complied" ${sel('special','complied')}>Special provision applies — alternate proof of execution submitted</option>
+        <option value="wo-only" ${sel('special','wo-only')}>Special provision applies — only WO/PO submitted (raises Q-5A)</option>
+        <option value="catchall" ${sel('special','catchall')}>Catch-all "any other document" — value/scope unclear (raises Q-5B)</option>
+      </select>
+      <div class="hint">Use only when the specific NIT carries an additional sub-clause under Cl. 24.iii.B(b) for this WO type</div></div>
   </div>
   `;
 }
@@ -873,10 +892,12 @@ function saveWOEdit(){
     uncPlant:(document.getElementById('wf-sim').value==='unclear'||document.getElementById('wf-sim').value==='partial')&&document.getElementById('wf-unc-plant').checked,
     uncScope:(document.getElementById('wf-sim').value==='unclear'||document.getElementById('wf-sim').value==='partial')&&document.getElementById('wf-unc-scope').checked,
     uncValue:(document.getElementById('wf-sim').value==='unclear'||document.getElementById('wf-sim').value==='partial')&&document.getElementById('wf-unc-value').checked,
+    uncEquip:(document.getElementById('wf-sim').value==='unclear'||document.getElementById('wf-sim').value==='partial')&&document.getElementById('wf-unc-equip').checked,
     subw:document.getElementById('wf-subw').value,
     bif:document.getElementById('wf-bif').value,
     cur:document.getElementById('wf-cur').value,
     own:document.getElementById('wf-own').value,
+    special:document.getElementById('wf-special').value,
   };
   if(!wo.num){toast('WO number is required','warn');return;}
   if(woIdx===-1) S.bidders[bidderIdx].wos.push(wo);
@@ -944,6 +965,14 @@ const QT={
     text:`WO No. ${wo.num||'[WO No.]'} states the contract value in ${wo.cur||'[currency]'}. As per NIT Cl. 24.iii.B(n), the value must be converted to INR at the SBI bill selling rate on the date of WO issue (${fmtDate(wo.date)||'[WO date]'}).\n\nPlease submit:\n(a) The SBI bill selling rate for ${wo.cur||'[currency]'} on ${fmtDate(wo.date)||'[date]'} with supporting evidence (RBI/SBI exchange rate statement)\n(b) The resulting converted INR executed value as per the CC`}),
   'Q-3C':(wo)=>({id:'Q-3C',clause:'NIT Cl. 24.iii.B(b)(2) & Cl. 24.iii.B(a)',title:'Running WO — No CC Submitted (Job Under Execution)',
     text:`WO No. ${wo.num||'[WO No.]'} dated ${fmtDate(wo.date)} submitted in support of PQC experience appears to be under execution, and no Completion Certificate has been submitted.\n\nIf this work has since been completed, please submit a Completion Certificate from the end-client/EIC confirming:\n(a) Date of completion\n(b) Executed value inclusive of GST\n(c) Reference to WO No. ${wo.num||'[WO No.]'}\n\nIf the work is still ongoing and a CC cannot be submitted at this stage, please confirm in writing — the WO will not be considered for PQC evaluation as executed value cannot be verified per Cl. 24.iii.B(b)(2).`}),
+  'Q-2C':(wo)=>({id:'Q-2C',clause:'NIT Cl. 11.3',title:'Similar Nature — Equipment Type Not Specified',
+    text:`The Work Order / Completion Certificate for WO No. ${wo.num||'[WO No.]'} describes a shutdown / maintenance job but does not specify the type of equipment maintained.\n\nAs per NIT Cl. 11.3, the qualifying scope must include maintenance of heat exchangers, columns/vessels, furnace, or hot job works with CS/SS/AS piping. Please submit the Schedule of Rates / detailed Scope of Work document, or a clarification letter from the end-client/EIC, specifying the equipment and activities carried out during the job.`}),
+  'Q-4A':(wo)=>({id:'Q-4A',clause:'NIT Cl. 10',title:'EMD Bank Guarantee — Validity / SFMS Issue',
+    text:`The EMD Bank Guarantee submitted ${wo&&wo.emd==='sfms'?'does not match the SFMS field values (beneficiary name, bank branch, IFSC code, reference code) specified in':'has a validity period shorter than that required under'} NIT Cl. 10.\n\nPlease submit:\n(a) A revised / extended Bank Guarantee valid up to at least the period required under NIT Cl. 10 (typically 7 months from the bid submission date), and\n(b) Confirmation that the SFMS transmission for the BG carries the exact field values specified in NIT Cl. 10 of this tender.`}),
+  'Q-5A':(wo)=>({id:'Q-5A',clause:'NIT Cl. 24.iii.B(b) — Special Provision',title:'Special Provision — Only WO/PO Submitted',
+    text:`WO/PO No. ${wo.num||'[WO/PO No.]'} pertains to a work type for which this NIT carries a special provision under Cl. 24.iii.B(b). Only the WO/PO copy has been submitted, without any of the alternate execution-proof documents listed in that provision.\n\nAs per NIT Cl. 24.iii.B(b) [applicable special sub-clause], the WO/PO copy alone is not sufficient proof of execution. Please submit the alternate proof of execution document(s) listed in the applicable special provision of this NIT at the earliest.`}),
+  'Q-5B':(wo)=>({id:'Q-5B',clause:'NIT Cl. 24.iii.B(b) — Special Provision',title:'Special Provision — Catch-All Document Unclear',
+    text:`In support of WO/PO No. ${wo.num||'[WO/PO No.]'}, an "any other document" has been submitted as alternate proof of execution under the special provision of NIT Cl. 24.iii.B(b). However, the document does not clearly establish (a) the value of work actually executed, and/or (b) confirmation that the scope described in the WO/PO was completed.\n\nThe catch-all option is conditional on proper verification by IOCL. Please submit a supplementary document from the end-client, or a more specific document, confirming the executed value and the nature/scope of work completed.`}),
 };
 
 // genQ — see admin config section below for the full implementation
@@ -996,13 +1025,21 @@ function evaluateBidder(bi){
     // partial and unclear both trigger Q-2A
     if(wo.sim==='partial' && isChkOn('CHK_SIM_PARTIAL')){queries.push(genQ('Q-2A',wo));woQueryNeeded=true;}
     else if(wo.sim==='unclear' && isChkOn('CHK_SIM_UNCLEAR')){queries.push(genQ('Q-2A',wo));woQueryNeeded=true;}
+    if(wo.uncEquip && isChkOn('CHK_SIM_EQUIP')){queries.push(genQ('Q-2C',wo));woQueryNeeded=true;}
     if(wo.bif==='no' && isChkOn('CHK_BIFURCATION')){queries.push(genQ('Q-2B',wo));woQueryNeeded=true;}
     if(wo.cur!=='INR' && isChkOn('CHK_CURRENCY')){queries.push(genQ('Q-3B',wo));}
+    if(wo.special==='wo-only' && isChkOn('CHK_SPECIAL_WOPO')){queries.push(genQ('Q-5A',wo));woQueryNeeded=true;}
+    if(wo.special==='catchall' && isChkOn('CHK_SPECIAL_CATCHALL')){queries.push(genQ('Q-5B',wo));woQueryNeeded=true;}
 
     // Qualifying only if no blocking issues
     if(!woQueryNeeded && wo.exec>0 && (wo.cc==='yes'||wo.cc==='partial')){
       qualifyingWOs.push(wo);
     }
+  }
+
+  // EMD / Bank Guarantee check — bidder-level (NIT Cl. 10)
+  if(b.emd && b.emd!=='ok' && isChkOn('CHK_EMD_BG')){
+    queries.push(genQ('Q-4A',{num:'',emd:b.emd}));
   }
 
   b.qualifyingWOs=qualifyingWOs;
@@ -2102,9 +2139,13 @@ const DEFAULT_QUERY_META = {
   'Q-1E': {title:'CC — WO Number Mismatch',                     clause:'NIT Cl. 24.iii.B(b)(1)'},
   'Q-2A': {title:'Similar Nature — Clarification Required',     clause:'NIT Cl. 11.3 · TBA General Note 4'},
   'Q-2B': {title:'Composite WO — Bifurcation Required',         clause:'TBA General Note 4'},
+  'Q-2C': {title:'Similar Nature — Equipment Type Not Specified',clause:'NIT Cl. 11.3'},
   'Q-3A': {title:'WO Outside QP — Completion Date Not Clear',   clause:'NIT Cl. 24.iii.B(a)'},
   'Q-3B': {title:'Foreign Currency — INR Conversion Required',  clause:'NIT Cl. 24.iii.B(n)'},
   'Q-3C': {title:'Running WO — No CC Submitted',                clause:'NIT Cl. 24.iii.B(b)(2) & Cl. 24.iii.B(a)'},
+  'Q-4A': {title:'EMD Bank Guarantee — Validity / SFMS Issue',  clause:'NIT Cl. 10'},
+  'Q-5A': {title:'Special Provision — Only WO/PO Submitted',    clause:'NIT Cl. 24.iii.B(b) — Special Provision'},
+  'Q-5B': {title:'Special Provision — Catch-All Document Unclear',clause:'NIT Cl. 24.iii.B(b) — Special Provision'},
 };
 
 // ── Default check toggles
@@ -2116,9 +2157,13 @@ const DEFAULT_CHECKS = {
   'CHK_WO_CC_NUM':   {label:'Raise Q-1E when WO/CC numbers differ',        desc:'Cl. 24.iii.B(b)(1) — CC must correspond to WO'},
   'CHK_SIM_PARTIAL': {label:'Raise Q-2A when similar nature is partial',   desc:'Cl. 11.3 — partial scope match needs clarification'},
   'CHK_SIM_UNCLEAR': {label:'Raise Q-2A when similar nature is unclear',   desc:'Cl. 11.3 — unclear scope needs clarification'},
+  'CHK_SIM_EQUIP':   {label:'Raise Q-2C when equipment type not specified',desc:'Cl. 11.3 — equipment type must be evidenced'},
   'CHK_BIFURCATION': {label:'Raise Q-2B when composite CC with no split',  desc:'TBA Note 4 — only similar-nature portion counts'},
   'CHK_CURRENCY':    {label:'Raise Q-3B when WO is in foreign currency',   desc:'Cl. 24.iii.B(n) — must convert at SBI rate'},
   'CHK_RUNNING_WO':  {label:'Raise Q-3C when WO is still running',         desc:'Cl. 24.iii.B(b)(2) — CC needed to verify value'},
+  'CHK_EMD_BG':      {label:'Raise Q-4A when EMD BG validity/SFMS deficient',desc:'Cl. 10 — BG validity & SFMS fields must comply'},
+  'CHK_SPECIAL_WOPO':{label:'Raise Q-5A when special provision & only WO/PO',desc:'Cl. 24.iii.B(b) — alternate execution proof required'},
+  'CHK_SPECIAL_CATCHALL':{label:'Raise Q-5B when catch-all document unclear',desc:'Cl. 24.iii.B(b) — catch-all needs IOCL verification'},
   'CHK_OWN_PLANT':   {label:'Exclude WOs for bidder\'s own plant/project', desc:'Cl. 24.iii.B(l) — own-plant work not counted'},
   'CHK_QP_EXCLUDE':  {label:'Exclude WOs completed outside qualifying period',desc:'Cl. 24.iii.B(a) — 7-year QP applies'},
 };
@@ -2195,7 +2240,7 @@ async function downloadUpdatedSuite(){
       fetch('tutorial.html').then(r=>r.text()),
       fetch('TBA_Suite_Combined.html').then(r=>r.text()),
     ]);
-    // Inject baked config — use </> to avoid </script> breaking the tag
+    // Inject baked config. cfgJson escapes angle brackets so no closing tag can appear inside the script string.
     const cfgJson=JSON.stringify(CFG).replace(/</g,'\\u003c').replace(/>/g,'\\u003e');
     const bakedEval=evalHtml.replace(
       '<meta charset="UTF-8"/>',
