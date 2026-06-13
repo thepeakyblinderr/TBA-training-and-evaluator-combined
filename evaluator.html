@@ -522,6 +522,12 @@ main { padding-top: 0 !important; }
         </div>
       </div>
 
+      <!-- Share-ready export -->
+      <div class="alert a-inf" style="margin-bottom:18px;display:flex;align-items:center;gap:14px">
+        <div style="flex:1"><strong>Share Updated Suite</strong><br><span style="font-size:12px">After updating clause numbers or query wording below, click this to download a single HTML file with your settings baked in. Send that one file to anyone — they open it and everything is already configured.</span></div>
+        <button class="btn b-pri" style="white-space:nowrap;flex-shrink:0" onclick="downloadUpdatedSuite()">⬇ Download Updated Suite</button>
+      </div>
+
       <div class="cfg-tabs">
         <button class="cfg-tab active" onclick="switchCfgTab('tab-clauses',this)">📋 NIT Clauses</button>
         <button class="cfg-tab" onclick="switchCfgTab('tab-queries',this)">✉ Query Templates</button>
@@ -2135,6 +2141,8 @@ async function sha256(str){
 const DEFAULT_PW_HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
 
 function loadCFG(){
+  // __BAKED_CFG__ is injected when the suite is exported via "Download Updated Suite"
+  if(window.__BAKED_CFG__){ CFG = {...CFG, ...window.__BAKED_CFG__}; return; }
   try{
     const raw = localStorage.getItem('tba_v3_cfg');
     if(raw) CFG = {...CFG, ...JSON.parse(raw)};
@@ -2179,6 +2187,36 @@ async function adminLogin(){
     document.getElementById('admin-pw-input').value = '';
   }
 }
+async function downloadUpdatedSuite(){
+  toast('Preparing share-ready file…','ok');
+  try{
+    const [evalHtml,tutHtml,shellHtml]=await Promise.all([
+      fetch('evaluator.html').then(r=>r.text()),
+      fetch('tutorial.html').then(r=>r.text()),
+      fetch('TBA_Suite_Combined.html').then(r=>r.text()),
+    ]);
+    // Inject baked config — use </> to avoid </script> breaking the tag
+    const cfgJson=JSON.stringify(CFG).replace(/</g,'\\u003c').replace(/>/g,'\\u003e');
+    const bakedEval=evalHtml.replace(
+      '<meta charset="UTF-8"/>',
+      `<script>window.__BAKED_CFG__=${cfgJson};<\/script>\n<meta charset="UTF-8"/>`
+    );
+    // HTML-encode both modules for srcdoc embedding
+    const enc=s=>s.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+    const combined=shellHtml
+      .replace('src="evaluator.html"',`srcdoc="${enc(bakedEval)}"`)
+      .replace('src="tutorial.html"', `srcdoc="${enc(tutHtml)}"`);
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([combined],{type:'text/html'}));
+    a.download='TBA_Suite_Combined.html';
+    a.click();
+    toast('Share-ready file downloaded ✓','ok');
+  }catch(e){
+    console.error('Suite export failed:',e);
+    toast('Export failed — ensure evaluator.html, tutorial.html & TBA_Suite_Combined.html are in the same folder','err');
+  }
+}
+
 function adminLogout(){
   _adminUnlocked = false;
   document.getElementById('admin-lock').style.display = 'block';
